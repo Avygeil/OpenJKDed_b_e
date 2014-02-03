@@ -680,7 +680,7 @@ if(BuildMPDed)
 			"${SharedDir}/sys/con_log.cpp"
 			"${SharedDir}/sys/con_tty.cpp"
 			)
-		set(MPDedLibraries ${MPDedLibraries} ${CMAKE_DL_LIBS})
+		set(MPDedLibraries ${MPDedLibraries} -Bdynamic ${CMAKE_DL_LIBS}  "rt")
 		source_group("sys" FILES ${MPDedSysFiles})
 		set(MPDedFiles ${MPDedFiles} ${MPDedSysFiles})
 	endif(WIN32)
