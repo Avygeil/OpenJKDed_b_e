@@ -1245,9 +1245,6 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 
 	cBuf = (byte *)PADP(cmd->captureBuffer, packAlign);
 
-	qglReadPixels(0, 0, cmd->width, cmd->height, GL_RGB,
-		GL_UNSIGNED_BYTE, cBuf);
-
 	memcount = padwidth * cmd->height;
 
 	// gamma correct
@@ -1256,6 +1253,13 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 
 	if(cmd->motionJpeg)
 	{
+		qglReadPixels(0, 0, cmd->width, cmd->height, GL_RGB,
+			GL_UNSIGNED_BYTE, cBuf);
+
+		// gamma correct
+		if(glConfig.deviceSupportsGamma)
+			R_GammaCorrect(cBuf, memcount);
+
 		memcount = RE_SaveJPGToBuffer(cmd->encodeBuffer, linelen * cmd->height,
 			r_aviMotionJpegQuality->integer,
 			cmd->width, cmd->height, cBuf, padlen);
@@ -1266,26 +1270,42 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 		byte *lineend, *memend;
 		byte *srcptr, *destptr;
 
-		srcptr = cBuf;
-		destptr = cmd->encodeBuffer;
-		memend = srcptr + memcount;
-
-		// swap R and B and remove line paddings
-		while(srcptr < memend)
+		if ( avipadlen == padlen )
 		{
-			lineend = srcptr + linelen;
-			while(srcptr < lineend)
+			qglReadPixels(0, 0, cmd->width, cmd->height, GL_BGR_EXT,
+				GL_UNSIGNED_BYTE, cmd->encodeBuffer);
+		}
+		else
+		{
+			Com_Printf("Need to rearrange due to different padlen: %d vs %d\n", avipadlen, padlen);
+
+			qglReadPixels(0, 0, cmd->width, cmd->height, GL_BGR_EXT,
+				GL_UNSIGNED_BYTE, cBuf);
+
+			srcptr = cBuf;
+			destptr = cmd->encodeBuffer;
+			memend = srcptr + memcount;
+
+			// swap R and B and remove line paddings
+			while(srcptr < memend)
 			{
-				*destptr++ = srcptr[2];
-				*destptr++ = srcptr[1];
-				*destptr++ = srcptr[0];
-				srcptr += 3;
+				lineend = srcptr + linelen;
+				/*while(srcptr < lineend)
+				{
+					*destptr++ = srcptr[2];
+					*destptr++ = srcptr[1];
+					*destptr++ = srcptr[0];
+					srcptr += 3;
+				}*/
+				memcpy(destptr, srcptr, linelen);
+				destptr += linelen;
+				srcptr += linelen;
+
+				Com_Memset(destptr, '\0', avipadlen);
+				destptr += avipadlen;
+
+				srcptr += padlen;
 			}
-
-			Com_Memset(destptr, '\0', avipadlen);
-			destptr += avipadlen;
-
-			srcptr += padlen;
 		}
 
 		ri->CL_WriteAVIVideoFrame(cmd->encodeBuffer, avipadwidth * cmd->height);
