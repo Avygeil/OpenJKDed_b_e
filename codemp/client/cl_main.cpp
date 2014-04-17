@@ -2360,7 +2360,12 @@ void CL_InitRef( void ) {
 	}
 
 	if ( !rendererLib ) {
-		Com_Error( ERR_FATAL, "Failed to load renderer" );
+		const char *error = Sys_LibraryError();
+		if (error) {
+			Com_Error( ERR_FATAL, "Failed to load renderer: %s", error );
+		} else {
+			Com_Error( ERR_FATAL, "Failed to load renderer (no error message)" );
+		}
 	}
 
 	memset( &ri, 0, sizeof( ri ) );

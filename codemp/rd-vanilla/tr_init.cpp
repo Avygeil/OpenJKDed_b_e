@@ -31,6 +31,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/MiniHeap.h"
 #include "ghoul2/g2_local.h"
 
+static GLuint pboIds[2];
+
 glconfig_t	glConfig;
 glconfigExt_t glConfigExt;
 glstate_t	glState;
@@ -257,6 +259,11 @@ PFNGLGETPROGRAMLOCALPARAMETERFVARBPROC qglGetProgramLocalParameterfvARB;
 PFNGLGETPROGRAMIVARBPROC qglGetProgramivARB;
 PFNGLGETPROGRAMSTRINGARBPROC qglGetProgramStringARB;
 PFNGLISPROGRAMARBPROC qglIsProgramARB;
+PFNGLGENBUFFERSARBPROC qglGenBuffersARB = NULL;
+PFNGLBINDBUFFERARBPROC qglBindBufferARB = NULL;
+PFNGLBUFFERDATAARBPROC qglBufferDataARB = NULL;
+PFNGLMAPBUFFERARBPROC qglMapBufferARB = NULL;
+PFNGLUNMAPBUFFERARBPROC qglUnmapBufferARB = NULL;
 
 PFNGLLOCKARRAYSEXTPROC qglLockArraysEXT;
 PFNGLUNLOCKARRAYSEXTPROC qglUnlockArraysEXT;
@@ -667,6 +674,11 @@ static void GLimp_InitExtensions( void )
 		qglGetProgramivARB					= (PFNGLGETPROGRAMIVARBPROC)     ri->GL_GetProcAddress("glGetProgramivARB");
 		qglGetProgramStringARB				= (PFNGLGETPROGRAMSTRINGARBPROC) ri->GL_GetProcAddress("glGetProgramStringARB");
 		qglIsProgramARB						= (PFNGLISPROGRAMARBPROC)        ri->GL_GetProcAddress("glIsProgramARB");
+		qglGenBuffersARB					= (PFNGLGENBUFFERSARBPROC)       ri->GL_GetProcAddress("glGenBuffersARB");
+		qglBindBufferARB					= (PFNGLBINDBUFFERARBPROC)       ri->GL_GetProcAddress("glBindBufferARB");
+		qglBufferDataARB					= (PFNGLBUFFERDATAARBPROC)       ri->GL_GetProcAddress("glBufferDataARB");
+		qglMapBufferARB						= (PFNGLMAPBUFFERARBPROC)		 ri->GL_GetProcAddress("glMapBufferARB");
+		qglUnmapBufferARB					= (PFNGLUNMAPBUFFERARBPROC)		 ri->GL_GetProcAddress("glUnmapBufferARB");
 
 		// Validate the functions we need.
 		if ( !qglProgramStringARB || !qglBindProgramARB || !qglDeleteProgramsARB || !qglGenProgramsARB ||
@@ -1234,7 +1246,7 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 
 	qglGetIntegerv(GL_PACK_ALIGNMENT, &packAlign);
 
-	linelen = cmd->width * 3;
+	linelen = cmd->width * 4;
 
 	// Alignment stuff for glReadPixels
 	padwidth = PAD(linelen, packAlign);
@@ -1267,13 +1279,30 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 	}
 	else
 	{
+		static int index = 0;
 		byte *lineend, *memend;
 		byte *srcptr, *destptr;
+		byte *buffer = cmd->encodeBuffer;
 
 		if ( avipadlen == padlen )
 		{
+			glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
+			index = index ^ 1;
 			qglReadPixels(0, 0, cmd->width, cmd->height, GL_BGR_EXT,
-				GL_UNSIGNED_BYTE, cmd->encodeBuffer);
+				GL_UNSIGNED_BYTE, 0);
+
+			// map the PBO to process its data by CPU
+			qglBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
+			GLubyte* ptr = (GLubyte*)qglMapBufferARB(GL_PIXEL_PACK_BUFFER_ARB,
+													GL_READ_ONLY_ARB);
+			if (ptr)
+			{
+				buffer = ptr;
+				qglUnmapBufferARB(GL_PIXEL_PACK_BUFFER_ARB);
+			}
+
+			// back to conventional pixel operation
+			qglBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
 		}
 		else
 		{
@@ -1308,7 +1337,7 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 			}
 		}
 
-		ri->CL_WriteAVIVideoFrame(cmd->encodeBuffer, avipadwidth * cmd->height);
+		ri->CL_WriteAVIVideoFrame(buffer, avipadwidth * cmd->height);
 	}
 
 	return (const void *)(cmd + 1);
@@ -1706,7 +1735,6 @@ Ghoul2 Insert End
 		ri->Cmd_AddCommand( commands[i].cmd, commands[i].func );
 }
 
-
 /*
 ===============
 R_Init
@@ -1801,6 +1829,21 @@ void R_Init( void ) {
 	GfxInfo_f();
 
 //	ri->Printf( PRINT_ALL, "----- finished R_Init -----\n" );
+	{
+		// create 2 pixel buffer objects, you need to delete them when program exits.
+		// glBufferDataARB with NULL pointer reserves only memory space.
+		int width = 1920, height = 1080;
+		#define MAX_PACK_LEN 16
+		int dataSize = (width * 4 + MAX_PACK_LEN - 1) * height + MAX_PACK_LEN - 1;
+		qglGenBuffersARB(2, pboIds);
+		qglBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[0]);
+		qglBufferDataARB(GL_PIXEL_PACK_BUFFER_ARB, dataSize, 0, GL_STREAM_READ_ARB);
+		qglBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[1]);
+		qglBufferDataARB(GL_PIXEL_PACK_BUFFER_ARB, dataSize, 0, GL_STREAM_READ_ARB);
+
+		qglBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
+	}
+
 }
 
 /*
