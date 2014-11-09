@@ -1286,7 +1286,7 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 
 		if ( avipadlen == padlen )
 		{
-			glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
+			qglBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
 			index = index ^ 1;
 			qglReadPixels(0, 0, cmd->width, cmd->height, GL_BGR_EXT,
 				GL_UNSIGNED_BYTE, 0);

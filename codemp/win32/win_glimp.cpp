@@ -1355,6 +1355,25 @@ static void GLW_InitExtensions( void )
 			Com_Printf ("...ignoring GL_ARB_fragment_program\n" );
 		}
 	}
+	
+	if ( GL_CheckForExtension( "GL_ARB_vertex_buffer_object" ) )
+	{
+		qglGenBuffersARB = ( PFNGLGENBUFFERSARBPROC ) qwglGetProcAddress( "glGenBuffersARB" );
+		qglBindBufferARB = ( PFNGLBINDBUFFERARBPROC ) qwglGetProcAddress( "glBindBufferARB" );
+		qglBufferDataARB = ( PFNGLBUFFERDATAARBPROC ) qwglGetProcAddress( "glBufferDataARB" );
+		qglMapBufferARB = ( PFNGLMAPBUFFERARBPROC ) qwglGetProcAddress( "glMapBufferARB" );
+		qglUnmapBufferARB = ( PFNGLUNMAPBUFFERARBPROC ) qwglGetProcAddress( "glUnmapBufferARB" );
+
+		// Validate the functions we need.
+		if ( !qglGenBuffersARB || !qglBindBufferARB || !qglBufferDataARB || !qglMapBufferARB || !qglUnmapBufferARB )
+		{
+			Com_Printf ("...GL_ARB_vertex_buffer_object failed\n" );
+		}
+	}
+	else
+	{
+		Com_Printf ("...GL_ARB_vertex_buffer_object not found\n" );
+	}
 
 	// Figure out which texture rectangle extension to use.
 	bool bTexRectSupported = false;
