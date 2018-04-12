@@ -65,6 +65,8 @@ cvar_t	*sv_autoDemoBots;
 cvar_t	*sv_autoDemoMaxMaps;
 cvar_t	*sv_blockJumpSelect;
 cvar_t	*sv_banFile;
+// alpha - base_enhanced start
+cvar_t	*sv_printFullConnect;
 
 serverBan_t serverBans[SERVER_MAXBANS];
 int serverBansCount = 0;

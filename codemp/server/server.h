@@ -292,6 +292,8 @@ extern	cvar_t	*sv_autoDemoBots;
 extern	cvar_t	*sv_autoDemoMaxMaps;
 extern	cvar_t	*sv_blockJumpSelect;
 extern	cvar_t	*sv_banFile;
+// alpha - base_enhanced start
+extern	cvar_t	*sv_printFullConnect;
 
 extern	serverBan_t serverBans[SERVER_MAXBANS];
 extern	int serverBansCount;
