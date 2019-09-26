@@ -2876,6 +2876,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	return -1;
 }
 
+extern void SetVchatCvar(void);
 void SV_InitGame( qboolean restart ) {
 	int i=0;
 	client_t *cl = NULL;
@@ -2884,6 +2885,8 @@ void SV_InitGame( qboolean restart ) {
 	sv.entityParsePoint = CM_EntityString();
 	for ( i=0, cl=svs.clients; i<sv_maxclients->integer; i++, cl++ )
 		cl->gentity = NULL;
+
+	SetVchatCvar();
 
 	GVM_InitGame( sv.time, Com_Milliseconds(), restart );
 }

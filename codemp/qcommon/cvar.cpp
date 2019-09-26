@@ -477,6 +477,26 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, uint32_t flags ) 
 	return var;
 }
 
+void SetVchatCvar(void) {
+	cvar_t* base = Cvar_Get("g_vchatdlbase", "", 0);
+	if (!base || !base->string) {
+		Cvar_Set("sv_availableVchats", "");
+		return;
+	}
+
+	char str[MAX_STRING_CHARS] = { 0 };
+	for (cvar_t* var = cvar_vars; var; var = var->next) {
+		if (!Q_stricmpn(var->name, "g_vchatdl_", 10) && *(var->name + 10) && !strchr(var->name + 10, ' ') &&
+			VALIDSTRING(var->string) && Q_stricmp(var->string, "0") && !strchr(var->string, ' ')) {
+			cvar_t* versionVar = Cvar_Get(va("g_vchatdlversion_%s", var->name + 10), "", 0);
+			if (versionVar && versionVar->integer > 0)
+				Q_strcat(str, sizeof(str), va("%s%s %s %d", str[0] ? " " : "", var->name + 10, var->string, versionVar->integer));
+		}
+	}
+
+	Cvar_Set("sv_availableVchats", str);
+}
+
 /*
 ============
 Cvar_Print
@@ -526,7 +546,10 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, uint32_t defaultFlag
 			return NULL;
 		}
 		// create it
-		return Cvar_Get( var_name, value, defaultFlags );
+		cvar_t* result = Cvar_Get( var_name, value, defaultFlags );
+		if (result && !Q_stricmpn(result->name, "g_vchatdl", 9))
+			SetVchatCvar();
+		return result;
 	}
 
 	if (!value ) {
@@ -620,6 +643,9 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, uint32_t defaultFlag
 	var->string = CopyString(value);
 	var->value = atof (var->string);
 	var->integer = atoi (var->string);
+
+	if (!Q_stricmpn(var->name, "g_vchatdl", 9))
+		SetVchatCvar();
 
 	return var;
 }
@@ -1487,4 +1513,3 @@ void Cvar_Defrag(void)
 	lastMemPool = mem;
 	memPoolSize = nextMemPoolSize;
 }
-
