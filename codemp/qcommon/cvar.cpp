@@ -479,7 +479,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, uint32_t flags ) 
 
 void SetVchatCvar(void) {
 	cvar_t* base = Cvar_Get("g_vchatdlbase", "", 0);
-	if (!base || !base->string) {
+	if (!base || !VALIDSTRING(base->string) || !Q_stricmp(base->string, "0")) {
 		Cvar_Set("sv_availableVchats", "");
 		return;
 	}
