@@ -545,6 +545,10 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 	float		*origin, *angles;
 	int			thisOwnerShared = 1;
 
+	if ( SV_GentityNum( clip->passEntityNum )->r.svFlags & SVF_GHOST ) {
+		return; // ghosted entities don't collide with any other entity
+	}
+
 	num = SV_AreaEntities( clip->boxmins, clip->boxmaxs, touchlist, MAX_GENTITIES);
 
 	if ( clip->passEntityNum != ENTITYNUM_NONE ) {
@@ -569,12 +573,6 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 
 		if ( touch->r.svFlags & SVF_GHOST ) {
 			continue; // don't clip against ghosted entities
-		}
-
-		// ghosted entities don't collide with most other entities, except glass
-		if (SV_GentityNum(clip->passEntityNum)->r.svFlags & SVF_GHOST &&
-			!(VALIDSTRING(touch->classname) && !strcmp(touch->classname, "func_glass"))) {
-			continue;
 		}
 
 		// see if we should ignore this entity
