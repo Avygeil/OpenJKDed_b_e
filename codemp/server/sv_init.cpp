@@ -471,7 +471,7 @@ static void CheckFsGameOverride(void) {
 			Cvar_Set("fs_game", FilterFsGameString(cvar->string));
 		}
 	}
-	else {
+	else if (VALIDSTRING(fs_gameOverrideDefault->string) && strcmp(fs_gameOverrideDefault->string, "0")) {
 		if (CompareFsGameString(fs_gamedirvar->string, fs_gameOverrideDefault->string)) {
 			Com_Printf("Setting fs_game (currently \"%s\") to the value of fs_gameOverrideDefault (\"%s\").\n", FilterFsGameString(fs_gamedirvar->string), FilterFsGameString(fs_gameOverrideDefault->string));
 			Cvar_Set("fs_game", FilterFsGameString(fs_gameOverrideDefault->string));
