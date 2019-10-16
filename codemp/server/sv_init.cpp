@@ -455,8 +455,6 @@ extern cvar_t* fs_gamedirvar;
 static void CheckFsGameOverride(void) {
 	int gametype = Cvar_VariableIntegerValue("g_gametype");
 
-	cvar_t** checkCvar = NULL;
-
 	if (gametype == GT_SIEGE && VALIDSTRING(fs_gameOverrideSiege->string) && Q_stricmp(fs_gameOverrideSiege->string, "0")) {
 		if (CompareFsGameString(fs_gamedirvar->string, fs_gameOverrideSiege->string)) {
 			Com_Printf("Setting fs_game (currently \"%s\") to the value of fs_gameOverrideSiege (\"%s\").\n", FilterFsGameString(fs_gamedirvar->string), FilterFsGameString(fs_gameOverrideSiege->string));
