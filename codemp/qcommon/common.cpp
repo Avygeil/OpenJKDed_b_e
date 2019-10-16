@@ -73,6 +73,11 @@ cvar_t	*com_ansiColor = NULL;
 
 cvar_t *com_affinity;
 
+cvar_t *fs_gameForceBroadcast;
+cvar_t *fs_gameOverrideDefault;
+cvar_t *fs_gameOverrideSiege;
+// duoTODO: add more gametype cvars
+
 // com_speeds times
 int		time_game;
 int		time_frontend;		// renderer frontend time
@@ -1287,6 +1292,10 @@ void Com_Init( char *commandLine ) {
 #endif
 
 		com_affinity = Cvar_Get( "com_affinity", "0", CVAR_ARCHIVE );
+
+		fs_gameForceBroadcast = Cvar_Get("fs_gameForceBroadcast", "", CVAR_ARCHIVE);
+		fs_gameOverrideDefault = Cvar_Get("fs_gameOverrideDefault", "", CVAR_ARCHIVE);
+		fs_gameOverrideSiege = Cvar_Get("fs_gameOverrideSiege", "", CVAR_ARCHIVE);
 
 		com_bootlogo = Cvar_Get( "com_bootlogo", "1", CVAR_ARCHIVE);
 

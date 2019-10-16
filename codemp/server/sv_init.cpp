@@ -437,6 +437,41 @@ void SV_SendMapChange(void)
 	}
 }
 
+// clone of Q_stricmp, but considers "base" to be the same as ""
+static int CompareFsGameString(const char* s1, const char* s2) {
+	const char* compare1 = !Q_stricmp(s1, "base") ? "" : s1;
+	const char* compare2 = !Q_stricmp(s2, "base") ? "" : s2;
+	return Q_stricmp(compare1, compare2);
+}
+
+// returns "" if the string is "base"; otherwise just returns the string
+const char* FilterFsGameString(const char* s) {
+	if (!Q_stricmp(s, "base"))
+		return "";
+	return s;
+}
+
+extern cvar_t* fs_gamedirvar;
+static void CheckFsGameOverride(void) {
+	int gametype = Cvar_VariableIntegerValue("g_gametype");
+
+	cvar_t** checkCvar = NULL;
+
+	if (gametype == GT_SIEGE && VALIDSTRING(fs_gameOverrideSiege->string) && Q_stricmp(fs_gameOverrideSiege->string, "0")) {
+		if (CompareFsGameString(fs_gamedirvar->string, fs_gameOverrideSiege->string)) {
+			Com_Printf("Setting fs_game (currently \"%s\") to the value of fs_gameOverrideSiege (\"%s\").\n", FilterFsGameString(fs_gamedirvar->string), FilterFsGameString(fs_gameOverrideSiege->string));
+			Cvar_Set("fs_game", FilterFsGameString(fs_gameOverrideSiege->string));
+		}
+	}
+	// duoTODO: add more gametype cvars here
+	else if (VALIDSTRING(fs_gameOverrideDefault->string) && Q_stricmp(fs_gameOverrideDefault->string, "0")) {
+		if (CompareFsGameString(fs_gamedirvar->string, fs_gameOverrideDefault->string)) {
+			Com_Printf("Setting fs_game (currently \"%s\") to the value of fs_gameOverrideDefault (\"%s\").\n", FilterFsGameString(fs_gamedirvar->string), FilterFsGameString(fs_gameOverrideDefault->string));
+			Cvar_Set("fs_game", FilterFsGameString(fs_gameOverrideDefault->string));
+		}
+	}
+}
+
 extern void SV_SendClientGameState( client_t *client );
 /*
 ================
@@ -463,6 +498,8 @@ void SV_SpawnServer( char *server, qboolean killBots, ForceReload_e eForceReload
 	// shut down the existing game if it is running
 	SV_ShutdownGameProgs();
 	svs.gameStarted = qfalse;
+
+	CheckFsGameOverride();
 
 	Com_Printf ("------ Server Initialization ------\n");
 	Com_Printf ("Server: %s\n",server);
