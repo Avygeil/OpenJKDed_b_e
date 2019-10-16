@@ -75,7 +75,12 @@ cvar_t *com_affinity;
 
 cvar_t *fs_gameForceBroadcast;
 cvar_t *fs_gameOverrideDefault;
+cvar_t *fs_gameOverrideFFA;
+cvar_t *fs_gameOverrideDuel;
+cvar_t *fs_gameOverridePowerDuel;
+cvar_t *fs_gameOverrideTFFA;
 cvar_t *fs_gameOverrideSiege;
+cvar_t* fs_gameOverrideCTF;
 // duoTODO: add more gametype cvars
 
 // com_speeds times
@@ -1295,7 +1300,12 @@ void Com_Init( char *commandLine ) {
 
 		fs_gameForceBroadcast = Cvar_Get("fs_gameForceBroadcast", "", CVAR_ARCHIVE);
 		fs_gameOverrideDefault = Cvar_Get("fs_gameOverrideDefault", "", CVAR_ARCHIVE);
+		fs_gameOverrideFFA = Cvar_Get("fs_gameOverrideFFA", "", CVAR_ARCHIVE);
+		fs_gameOverrideDuel = Cvar_Get("fs_gameOverrideDuel", "", CVAR_ARCHIVE);
+		fs_gameOverridePowerDuel = Cvar_Get("fs_gameOverridePowerDuel", "", CVAR_ARCHIVE);
+		fs_gameOverrideTFFA = Cvar_Get("fs_gameOverrideTFFA", "", CVAR_ARCHIVE);
 		fs_gameOverrideSiege = Cvar_Get("fs_gameOverrideSiege", "", CVAR_ARCHIVE);
+		fs_gameOverrideCTF = Cvar_Get("fs_gameOverrideCTF", "", CVAR_ARCHIVE);
 
 		com_bootlogo = Cvar_Get( "com_bootlogo", "1", CVAR_ARCHIVE);
 

@@ -454,15 +454,24 @@ const char* FilterFsGameString(const char* s) {
 extern cvar_t* fs_gamedirvar;
 static void CheckFsGameOverride(void) {
 	int gametype = Cvar_VariableIntegerValue("g_gametype");
+	const cvar_t *cvar = NULL;
 
-	if (gametype == GT_SIEGE && VALIDSTRING(fs_gameOverrideSiege->string) && Q_stricmp(fs_gameOverrideSiege->string, "0")) {
-		if (CompareFsGameString(fs_gamedirvar->string, fs_gameOverrideSiege->string)) {
-			Com_Printf("Setting fs_game (currently \"%s\") to the value of fs_gameOverrideSiege (\"%s\").\n", FilterFsGameString(fs_gamedirvar->string), FilterFsGameString(fs_gameOverrideSiege->string));
-			Cvar_Set("fs_game", FilterFsGameString(fs_gameOverrideSiege->string));
+	switch (gametype) {
+	case GT_FFA: cvar = fs_gameOverrideFFA; break;
+	case GT_DUEL: cvar = fs_gameOverrideDuel; break;
+	case GT_POWERDUEL: cvar = fs_gameOverridePowerDuel; break;
+	case GT_TEAM: cvar = fs_gameOverrideTFFA; break;
+	case GT_SIEGE: cvar = fs_gameOverrideSiege; break;
+	case GT_CTF: cvar = fs_gameOverrideCTF; break;
+	}
+
+	if (cvar && VALIDSTRING(cvar->string) && strcmp(cvar->string, "0")) {
+		if (CompareFsGameString(fs_gamedirvar->string, cvar->string)) {
+			Com_Printf("Setting fs_game (currently \"%s\") to the value of %s (\"%s\").\n", FilterFsGameString(fs_gamedirvar->string), cvar->name, FilterFsGameString(cvar->string));
+			Cvar_Set("fs_game", FilterFsGameString(cvar->string));
 		}
 	}
-	// duoTODO: add more gametype cvars here
-	else if (VALIDSTRING(fs_gameOverrideDefault->string) && Q_stricmp(fs_gameOverrideDefault->string, "0")) {
+	else {
 		if (CompareFsGameString(fs_gamedirvar->string, fs_gameOverrideDefault->string)) {
 			Com_Printf("Setting fs_game (currently \"%s\") to the value of fs_gameOverrideDefault (\"%s\").\n", FilterFsGameString(fs_gamedirvar->string), FilterFsGameString(fs_gameOverrideDefault->string));
 			Cvar_Set("fs_game", FilterFsGameString(fs_gameOverrideDefault->string));

@@ -797,7 +797,12 @@ extern	cvar_t	*com_affinity;
 
 extern	cvar_t	*fs_gameForceBroadcast;
 extern	cvar_t	*fs_gameOverrideDefault;
-extern	cvar_t	*fs_gameOverrideSiege;
+extern cvar_t *fs_gameOverrideFFA;
+extern cvar_t *fs_gameOverrideDuel;
+extern cvar_t *fs_gameOverridePowerDuel;
+extern cvar_t *fs_gameOverrideTFFA;
+extern cvar_t *fs_gameOverrideSiege;
+extern cvar_t *fs_gameOverrideCTF;
 
 // both client and server must agree to pause
 extern	cvar_t	*cl_paused;
