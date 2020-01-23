@@ -232,6 +232,10 @@ void FilterStringedTrollName(char *userinfo) {
 	if (!VALIDSTRING(userinfo))
 		return;
 
+	char *nameValue = Info_ValueForKey(userinfo, "name");
+	if (!VALIDSTRING(nameValue) || Q_stricmpn(nameValue, "@@@", 3))
+		return;
+
 	char *nameInInfo = (char *)Q_stristr(userinfo, "\\name\\@@@");
 	if (!nameInInfo)
 		return;
