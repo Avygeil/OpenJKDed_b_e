@@ -227,6 +227,21 @@ static bool ShouldLogFullServerConnect( netadr_t from ) {
 	return true;
 }
 
+// if a name starts with @@@, change those into spaces
+void FilterStringedTrollName(char *userinfo) {
+	if (!VALIDSTRING(userinfo))
+		return;
+
+	char *nameInInfo = strstr(userinfo, "\\name\\@@@");
+	if (!nameInInfo)
+		return;
+
+	nameInInfo += 6;
+	*nameInInfo = ' ';
+	*(nameInInfo + 1) = ' ';
+	*(nameInInfo + 2) = ' ';
+}
+
 /*
 ==================
 SV_DirectConnect
@@ -261,6 +276,7 @@ void SV_DirectConnect( netadr_t from ) {
 	}
 
 	Q_strncpyz( userinfo, Cmd_Argv(1), sizeof(userinfo) );
+	FilterStringedTrollName(userinfo);
 
 	version = atoi( Info_ValueForKey( userinfo, "protocol" ) );
 	if ( version != PROTOCOL_VERSION ) {
@@ -1423,6 +1439,7 @@ static void SV_UpdateUserinfo_f( client_t *cl ) {
 		return;
 
 	Q_strncpyz( cl->userinfo, arg, sizeof(cl->userinfo) );
+	FilterStringedTrollName(cl->userinfo);
 
 #ifdef FINAL_BUILD
 	if (cl->lastUserInfoChange > svs.time)
