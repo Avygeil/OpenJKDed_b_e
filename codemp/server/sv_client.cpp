@@ -232,7 +232,7 @@ void FilterStringedTrollName(char *userinfo) {
 	if (!VALIDSTRING(userinfo))
 		return;
 
-	char *nameInInfo = strstr(userinfo, "\\name\\@@@");
+	char *nameInInfo = (char *)Q_stristr(userinfo, "\\name\\@@@");
 	if (!nameInInfo)
 		return;
 
