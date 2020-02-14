@@ -1495,6 +1495,8 @@ extern timing_c G2PerformanceTimer_PreciseFrame;
 extern int G2Time_PreciseFrame;
 #endif
 
+extern void SV_ClientThink(client_t *cl, usercmd_t *cmd);
+
 /*
 =================
 Com_Frame
@@ -1539,6 +1541,46 @@ void Com_Frame( void ) {
 			}
 			msec = com_frameTime - lastTime;
 		} while ( msec < minMsec );
+
+		if (sv.state == SS_GAME && sv_antiLagAbuse->integer) {
+			for (client_t *cl = svs.clients; cl - svs.clients < sv_maxclients->integer; cl++) {
+				if (!cl)
+					continue;
+				if (cl->state != CS_ACTIVE) {
+					cl->numFramesActive = 0;
+					continue;
+				}
+				int svFps = sv_fps->integer ? sv_fps->integer : 1;
+				if (++cl->numFramesActive < (svFps * 5))
+					continue; // sanity check; wait until they've been around for a bit before starting anti-lag for them
+
+				// if sv_antiLagAbuseThreshold has been manually set, use it; otherwise, default to 1000 divided by sv_fps
+				int threshold = sv_antiLagAbuseThreshold->integer > 0 ? sv_antiLagAbuseThreshold->integer : 1000 / svFps;
+				if (!cl->lastThinkTime || svs.time - cl->lastThinkTime <= threshold)
+					continue;
+
+				// if we got here, this guy has taken too long since his last think; force a think
+				usercmd_t newThink = { 0 };
+				if (sv_antiLagAbuse->integer == 1) {
+					// mode 1: just redo his last think verbatim
+					memcpy(&newThink, &cl->lastUsercmd, sizeof(newThink));
+				}
+				else if (sv_antiLagAbuse->integer == 2) {
+					// mode 2: redo his last think, but for movement only (no other button presses)
+					memcpy(newThink.angles, cl->lastUsercmd.angles, sizeof(newThink.angles));
+					newThink.forwardmove = cl->lastUsercmd.forwardmove;
+					newThink.upmove = cl->lastUsercmd.upmove;
+					newThink.rightmove = cl->lastUsercmd.rightmove;
+				}
+				else {
+					// mode 3: just simulate being afk
+					memcpy(newThink.angles, cl->lastUsercmd.angles, sizeof(newThink.angles));
+				}
+				newThink.serverTime = svs.time; // regardless of mode, we update its serverTime
+				SV_ClientThink(cl, &newThink);
+			}
+		}
+
 		Cbuf_Execute ();
 
 		lastTime = com_frameTime;
@@ -1584,6 +1626,7 @@ void Com_Frame( void ) {
 				timeBeforeEvents = Sys_Milliseconds ();
 			}
 			Com_EventLoop();
+
 			Cbuf_Execute ();
 
 

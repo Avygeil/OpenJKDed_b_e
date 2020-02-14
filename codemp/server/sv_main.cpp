@@ -68,6 +68,8 @@ cvar_t	*sv_blockJumpSelect;
 cvar_t	*sv_banFile;
 // alpha - base_enhanced start
 cvar_t	*sv_printFullConnect;
+cvar_t	*sv_antiLagAbuse;
+cvar_t *sv_antiLagAbuseThreshold;
 
 serverBan_t serverBans[SERVER_MAXBANS];
 int serverBansCount = 0;

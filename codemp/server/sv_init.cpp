@@ -1049,6 +1049,8 @@ void SV_Init (void) {
 
 	// alpha - base_enhanced start
 	sv_printFullConnect = Cvar_Get( "sv_printFullConnect", "1", CVAR_ARCHIVE );
+	sv_antiLagAbuse = Cvar_Get("sv_antiLagAbuse", "0", CVAR_ARCHIVE);
+	sv_antiLagAbuseThreshold = Cvar_Get("sv_antiLagAbuseThreshold", "0", CVAR_ARCHIVE);
 
 	// initialize bot cvars so they are listed and can be set before loading the botlib
 	SV_BotInitCvars();

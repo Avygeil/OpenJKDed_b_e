@@ -190,6 +190,11 @@ typedef struct client_s {
 	qboolean		csUpdated[MAX_CONFIGSTRINGS];
 
 	demoInfo_t		demo;
+
+	int				lastThinkTime;
+	int				fakeThinkTime;
+	int				noRealThinksUntil;
+	int				numFramesActive;
 } client_t;
 
 //=============================================================================
@@ -295,6 +300,8 @@ extern	cvar_t	*sv_blockJumpSelect;
 extern	cvar_t	*sv_banFile;
 // alpha - base_enhanced start
 extern	cvar_t	*sv_printFullConnect;
+extern	cvar_t	*sv_antiLagAbuse;
+extern	cvar_t	*sv_antiLagAbuseThreshold;
 
 extern	serverBan_t serverBans[SERVER_MAXBANS];
 extern	int serverBansCount;

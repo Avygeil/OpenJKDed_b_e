@@ -1685,6 +1685,9 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 		return;
 	}
 
+	// save the last time they *tried* to move, even if it fails for whatever reason
+	cl->lastThinkTime = svs.time;
+
 	// usually, the first couple commands will be duplicates
 	// of ones we have previously received, but the servertimes
 	// in the commands will cause them to be immediately discarded
@@ -1702,6 +1705,7 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 		if ( cmds[i].serverTime <= cl->lastUsercmd.serverTime ) {
 			continue;
 		}
+
 		SV_ClientThink (cl, &cmds[ i ]);
 	}
 }
