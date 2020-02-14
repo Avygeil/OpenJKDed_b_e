@@ -1547,7 +1547,7 @@ void Com_Frame( void ) {
 				if (!cl)
 					continue;
 				if (cl->state != CS_ACTIVE) {
-					cl->numFramesActive = 0;
+					cl->numFramesActive = cl->lastThinkTime = 0;
 					continue;
 				}
 				int svFps = sv_fps->integer ? sv_fps->integer : 1;
