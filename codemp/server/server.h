@@ -302,6 +302,8 @@ extern	cvar_t	*sv_banFile;
 extern	cvar_t	*sv_printFullConnect;
 extern	cvar_t	*sv_antiLagAbuse;
 extern	cvar_t	*sv_antiLagAbuseThreshold;
+extern	cvar_t *b_e_game_features;
+extern	cvar_t *b_e_server_features;
 
 extern	serverBan_t serverBans[SERVER_MAXBANS];
 extern	int serverBansCount;
@@ -348,7 +350,8 @@ void SV_MasterShutdown (void);
 //
 // sv_init.c
 //
-void SV_SetConfigstring( int index, const char *val );
+void SV_SetConfigstring( int index, const char *val);
+void SV_SetConfigstringReal(int index, const char *val, qboolean dontUpdateClients);
 void SV_GetConfigstring( int index, char *buffer, int bufferSize );
 void SV_UpdateConfigstrings( client_t *client );
 

@@ -109,7 +109,7 @@ SV_SetConfigstring
 
 ===============
 */
-void SV_SetConfigstring (int index, const char *val) {
+void SV_SetConfigstringReal (int index, const char *val, qboolean dontUpdateClients) {
 	int		i;
 	client_t	*client;
 
@@ -130,6 +130,9 @@ void SV_SetConfigstring (int index, const char *val) {
 	Z_Free( sv.configstrings[index] );
 	sv.configstrings[index] = CopyString( val );
 
+	if (dontUpdateClients) // duo: added
+		return;
+
 	// send it to all the clients if we aren't
 	// spawning a new server
 	if ( sv.state == SS_GAME || sv.restarting ) {
@@ -149,6 +152,10 @@ void SV_SetConfigstring (int index, const char *val) {
 			SV_SendConfigstring(client, index);
 		}
 	}
+}
+
+void SV_SetConfigstring(int index, const char *val) {
+	SV_SetConfigstringReal(index, val, qfalse);
 }
 
 /*
@@ -863,7 +870,8 @@ static void CM_SetUsingCache( qboolean usingCache ) { gbUsingCachedMapDataRightN
 
 //server stuff D:
 extern void SV_GetConfigstring( int index, char *buffer, int bufferSize );
-extern void SV_SetConfigstring( int index, const char *val );
+extern void SV_SetConfigstring( int index, const char *val);
+extern void SV_SetConfigstringReal(int index, const char *val, qboolean dontUpdateClients);
 
 static IHeapAllocator *GetG2VertSpaceServer( void ) {
 	return G2VertSpaceServer;
@@ -1051,6 +1059,8 @@ void SV_Init (void) {
 	sv_printFullConnect = Cvar_Get( "sv_printFullConnect", "1", CVAR_ARCHIVE );
 	sv_antiLagAbuse = Cvar_Get("sv_antiLagAbuse", "0", CVAR_ARCHIVE);
 	sv_antiLagAbuseThreshold = Cvar_Get("sv_antiLagAbuseThreshold", "0", CVAR_ARCHIVE);
+	b_e_game_features = Cvar_Get("b_e_game_features", "", CVAR_ROM);
+	b_e_server_features = Cvar_Get("b_e_server_features", "1", CVAR_ROM);
 
 	// initialize bot cvars so they are listed and can be set before loading the botlib
 	SV_BotInitCvars();
