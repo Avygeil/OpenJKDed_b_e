@@ -1900,7 +1900,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		return SV_inPVSIgnorePortals( (const float *)VMA(1), (const float *)VMA(2) );
 
 	case G_SET_CONFIGSTRING:
-		SV_SetConfigstringReal(args[1], (const char *)VMA(2), (qboolean)args[3] == qtrue ? qtrue : qfalse );
+		SV_SetConfigstringReal(args[1], (const char *)VMA(2), (qboolean)args[3] == qtrue && sv_gametype->integer == GT_SIEGE ? qtrue : qfalse );
 		return 0;
 	case G_GET_CONFIGSTRING:
 		SV_GetConfigstring( args[1], (char *)VMA(2), args[3] );
