@@ -1900,7 +1900,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		return SV_inPVSIgnorePortals( (const float *)VMA(1), (const float *)VMA(2) );
 
 	case G_SET_CONFIGSTRING:
-		SV_SetConfigstringReal(args[1], (const char *)VMA(2), ((qboolean)args[3] == qtrue && b_e_game_features->integer & 1) ? qtrue : qfalse );
+		SV_SetConfigstringReal(args[1], (const char *)VMA(2), (qboolean)args[3] == qtrue ? qtrue : qfalse );
 		return 0;
 	case G_GET_CONFIGSTRING:
 		SV_GetConfigstring( args[1], (char *)VMA(2), args[3] );
@@ -2869,6 +2869,13 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		NET_OutOfBandPrint( NS_SERVER, svs.clients[clientNum].netchan.remoteAddress, ( const char * )VMA( 2 ) );
 		return 0;
 	}
+
+	case G_DB_GET:
+		return SV_DB_Get((void **)VMA(1));
+
+	case G_DB_SAVE:
+		SV_DB_Save();
+		return 0;
 
 	default:
 		Com_Error( ERR_DROP, "Bad game system trap: %ld", (long int) args[0] );

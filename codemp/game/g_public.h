@@ -718,7 +718,9 @@ typedef enum gameImportLegacy_e {
 	G_BOT_CALCULATEPATHS,
 
 	// new base_enhanced trap calls
-	G_OOBPRINT = 1337
+	G_OOBPRINT = 1337,
+	G_DB_GET,
+	G_DB_SAVE
 } gameImportLegacy_t;
 
 typedef enum gameExportLegacy_e {

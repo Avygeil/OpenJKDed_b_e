@@ -1059,8 +1059,7 @@ void SV_Init (void) {
 	sv_printFullConnect = Cvar_Get( "sv_printFullConnect", "1", CVAR_ARCHIVE );
 	sv_antiLagAbuse = Cvar_Get("sv_antiLagAbuse", "0", CVAR_ARCHIVE);
 	sv_antiLagAbuseThreshold = Cvar_Get("sv_antiLagAbuseThreshold", "0", CVAR_ARCHIVE);
-	b_e_game_features = Cvar_Get("b_e_game_features", "", CVAR_ROM);
-	b_e_server_features = Cvar_Get("b_e_server_features", "1", CVAR_ROM);
+	sv_traceSQL = Cvar_Get("sv_traceSQL", "0", CVAR_ARCHIVE | CVAR_LATCH);
 
 	// initialize bot cvars so they are listed and can be set before loading the botlib
 	SV_BotInitCvars();
@@ -1070,6 +1069,9 @@ void SV_Init (void) {
 
 	// Load saved bans
 	Cbuf_AddText("sv_rehashbans\n");
+
+	// load the database(s)
+	SV_DB_Init();
 
 	// Only allocated once, no point in moving it around and fragmenting
 	// create a heap for Ghoul2 to use for game side model vertex transforms used in collision detection
@@ -1164,4 +1166,6 @@ Ghoul2 Insert Start
 	// disconnect any local clients
 	if( sv_killserver->integer != 2 )
 		CL_Disconnect( qfalse );
+
+	SV_DB_Save();
 }
