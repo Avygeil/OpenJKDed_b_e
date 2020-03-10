@@ -70,7 +70,8 @@ cvar_t	*sv_banFile;
 cvar_t	*sv_printFullConnect;
 cvar_t	*sv_antiLagAbuse;
 cvar_t *sv_antiLagAbuseThreshold;
-cvar_t *sv_traceSQL;
+cvar_t *b_e_game_features;
+cvar_t *b_e_server_features;
 
 serverBan_t serverBans[SERVER_MAXBANS];
 int serverBansCount = 0;

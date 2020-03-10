@@ -324,9 +324,6 @@ if(BuildMPEngine OR BuildMPDed)
 		"${MPDir}/server/sv_world.cpp"
 		"${MPDir}/server/sv_gameapi.cpp"
 		"${MPDir}/server/sv_gameapi.h"
-		"${MPDir}/server/sqlite3/sqlite3.c"
-		"${MPDir}/server/sqlite3/sqlite3.h"
-		"${MPDir}/server/sv_database.cpp"
 		)
 	source_group("server" FILES ${MPEngineAndDedServerFiles})
 	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedServerFiles})
